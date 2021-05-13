@@ -75,6 +75,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             new String[] {user.getEmail()});
     }
 
+    public int updateUserEmail(String currentEmail, String newEmail) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(Util.USER_EMAIL, newEmail);
+
+
+        int result = db.update (Util.USER_TABLE_NAME, contentValues, Util.USER_EMAIL + "=?",
+            new String[] {currentEmail});
+
+        contentValues.clear();
+        contentValues.put(Util.POST_USER, newEmail);
+
+        db.update (Util.POST_TABLE_NAME, contentValues, Util.POST_USER + "=?",
+            new String[] {currentEmail});
+
+        if (result > 0) {
+            return 1;
+        }
+        else {
+            contentValues.clear();
+            contentValues.put(Util.USER_EMAIL, currentEmail);
+            db.update(Util.USER_TABLE_NAME, contentValues, Util.USER_EMAIL + "=?",
+                new String[]{newEmail});
+
+            contentValues.clear();
+            contentValues.put(Util.POST_USER, currentEmail);
+            db.update(Util.POST_TABLE_NAME, contentValues, Util.POST_USER + "=?",
+                new String[]{newEmail});
+            return -1;
+        }
+    }
+
     public int updateUserPassword(User user) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();

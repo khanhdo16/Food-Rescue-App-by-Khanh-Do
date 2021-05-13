@@ -100,14 +100,33 @@ public class AccountFragment extends Fragment {
                 String confirm = accountConfirmEditText.getText().toString();
 
                 if(TextUtils.isEmpty(password) && TextUtils.isEmpty(oldPassword) && TextUtils.isEmpty(confirm)) {
-                    User user = new User(
-                        accountNameEditText.getText().toString(),
-                        accountEmailEditText.getText().toString(),
-                        accountPhoneEditText.getText().toString(),
-                        accountAddressEditText.getText().toString()
-                    );
+                    int result = 0;
+                    if (!accountEmailEditText.getText().toString().equals(currentUser.getEmail())) {
+                        db.updateUserEmail(currentUser.getEmail(), accountEmailEditText.getText().toString());
+                        email = accountEmailEditText.getText().toString();
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString("email", accountEmailEditText.getText().toString());
+                        editor.apply();
 
-                    int result = db.updateUser(user);
+                        User user = new User(
+                            accountNameEditText.getText().toString(),
+                            accountEmailEditText.getText().toString(),
+                            accountPhoneEditText.getText().toString(),
+                            accountAddressEditText.getText().toString()
+                        );
+
+                        result = db.updateUser(user);
+                    }
+                    else {
+                        User user = new User(
+                            accountNameEditText.getText().toString(),
+                            currentUser.getEmail(),
+                            accountPhoneEditText.getText().toString(),
+                            accountAddressEditText.getText().toString()
+                        );
+
+                        result = db.updateUser(user);
+                    }
                     if (result > 0) {
                         Toast.makeText(getContext(), "Account updated successfully!", Toast.LENGTH_SHORT).show();
                     }
